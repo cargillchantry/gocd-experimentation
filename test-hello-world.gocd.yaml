@@ -15,7 +15,7 @@ pipelines:
     - Test:
         fetch_materials: true
         keep_artifacts: false
-        clean_workspace: false
+        clean_workspace: true
         approval:
           type: success
           allow_only_on_success: false
@@ -37,4 +37,17 @@ pipelines:
                   Debug: ''
                   AdditionalOptions: ''
                 run_if: passed
+    - Deploy:
+        fetch_materials: false
+        keep_artifacts: false
+        clean_workspace: true
+        approval:
+          type: manual
+          allow_only_on_success: true
+        jobs:
+          Deploy-To-Artifactory:
+            timeout: 0
+            tasks:
+              - exec:
+                  command: docker build --tag hello-world:1.0 . && docker push chantry.jfrog.io/experiment-docker/hello-world:1.0
 
