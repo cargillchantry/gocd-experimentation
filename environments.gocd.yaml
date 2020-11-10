@@ -1,6 +1,6 @@
 format_version: 10
 environments:
-  - name: test
+  test:
     pipelines:
       - test-hello-world
-  - name: production
+  production:
