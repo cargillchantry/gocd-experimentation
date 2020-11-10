@@ -14,7 +14,7 @@ pipelines:
     stages:
     - Test:
         fetch_materials: true
-        keep_artifacts: false
+        keep_artifacts: true
         clean_workspace: true
         approval:
           type: success
@@ -49,5 +49,5 @@ pipelines:
             timeout: 0
             tasks:
               - exec:
-                  command: ls -l && cat Dockerfile && docker build --tag hello-world:1.0 . && docker push chantry.jfrog.io/experiment-docker/hello-world:1.0
+                  command: docker build --tag chantry.jfrog.io/experiment-docker/hello-world:1.0 . && docker push chantry.jfrog.io/experiment-docker/hello-world:1.0
 
