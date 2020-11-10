@@ -1,0 +1,10 @@
+FROM gocd/gocd-agent-alpine-3.10:v20.8.0
+
+USER root
+RUN apk add --update --no-cache curl && \
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.19.2/bin/linux/amd64/kubectl && \
+    mv kubectl /usr/bin/kubectl && \
+    chmod +x /usr/bin/kubectl
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+USER go
