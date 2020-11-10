@@ -1,0 +1,40 @@
+format_version: 10
+pipelines:
+  test-hello-world:
+    group: defaultGroup
+    label_template: ${COUNT}
+    lock_behavior: none
+    display_order: -1
+    materials:
+      git-8ac3ad5:
+        git: https://github.com/cargillchantry/hello-world
+        shallow_clone: false
+        auto_update: true
+        branch: main
+    stages:
+    - Test:
+        fetch_materials: true
+        keep_artifacts: false
+        clean_workspace: false
+        approval:
+          type: success
+          allow_only_on_success: false
+        jobs:
+          Run-Unit-Tests:
+            timeout: 0
+            tasks:
+            - plugin:
+                configuration:
+                  id: gradle.task.plugin
+                  version: 1.0.6
+                options:
+                  GradleHome: ''
+                  Tasks: clean build
+                  Daemon: 'true'
+                  UseWrapper: ''
+                  MakeWrapperExecutable: ''
+                  Offline: ''
+                  Debug: ''
+                  AdditionalOptions: ''
+                run_if: passed
+
