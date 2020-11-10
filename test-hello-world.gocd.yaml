@@ -49,5 +49,5 @@ pipelines:
             timeout: 0
             tasks:
               - exec:
-                  command: docker build --tag hello-world:1.0 . && docker push chantry.jfrog.io/experiment-docker/hello-world:1.0
+                  command: ls -l && cat Dockerfile && docker build --tag hello-world:1.0 . && docker push chantry.jfrog.io/experiment-docker/hello-world:1.0
 
