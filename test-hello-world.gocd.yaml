@@ -38,7 +38,7 @@ pipelines:
                   AdditionalOptions: ''
                 run_if: passed
     - Deploy:
-        fetch_materials: false
+        fetch_materials: true
         keep_artifacts: false
         clean_workspace: true
         approval:
