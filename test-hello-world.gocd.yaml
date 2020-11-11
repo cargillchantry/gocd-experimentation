@@ -3,51 +3,69 @@ pipelines:
   test-hello-world:
     group: defaultGroup
     label_template: ${COUNT}
-    lock_behavior: none
+    lock_behavior: unlockWhenFinished
     display_order: -1
     materials:
-      git-8ac3ad5:
+      git-b0e531f:
         git: https://github.com/cargillchantry/hello-world
         shallow_clone: false
         auto_update: true
         branch: main
     stages:
-    - Test:
-        fetch_materials: true
-        keep_artifacts: true
-        clean_workspace: true
-        approval:
-          type: success
-          allow_only_on_success: false
-        jobs:
-          Run-Unit-Tests:
-            timeout: 0
-            tasks:
-            - plugin:
-                configuration:
-                  id: gradle.task.plugin
-                  version: 1.0.6
-                options:
-                  GradleHome: ''
-                  Tasks: clean build
-                  Daemon: 'true'
-                  UseWrapper: ''
-                  MakeWrapperExecutable: ''
-                  Offline: ''
-                  Debug: ''
-                  AdditionalOptions: ''
-                run_if: passed
-    - Deploy:
-        fetch_materials: true
-        keep_artifacts: false
-        clean_workspace: true
-        approval:
-          type: manual
-          allow_only_on_success: true
-        jobs:
-          Deploy-To-Artifactory:
-            timeout: 0
-            tasks:
-              - exec:
-                  command: docker build --tag chantry.jfrog.io/experiment-docker/hello-world:1.0 . && docker push chantry.jfrog.io/experiment-docker/hello-world:1.0
-
+      - Build-And-Test:
+          fetch_materials: true
+          keep_artifacts: false
+          clean_workspace: false
+          approval:
+            type: success
+            allow_only_on_success: false
+          jobs:
+            Clean-Build:
+              timeout: 0
+              artifacts:
+                - build:
+                    source: build/libs/*
+                    destination: build/libs/
+              tasks:
+                - exec:
+                    arguments:
+                      - clean
+                      - build
+                    command: gradle
+                    run_if: passed
+      - Publish:
+          fetch_materials: true
+          keep_artifacts: false
+          clean_workspace: false
+          approval:
+            type: manual
+            allow_only_on_success: true
+          jobs:
+            Create-Image-And-Publish:
+              timeout: 0
+              artifacts:
+                - external:
+                    id: hello-world
+                    store_id: chantry
+                    configuration:
+                      options:
+                        BuildFile: ''
+                        Tag: '1.0'
+                        Image: chantry.jfrog.io/experiment-docker/hello-world:1.0
+              tasks:
+                - fetch:
+                    is_file: false
+                    source: build/libs/
+                    destination: build/
+                    pipeline: test-hello-world
+                    stage: Build-And-Test
+                    job: Clean-Build
+                    artifact_origin: gocd
+                    run_if: passed
+                - exec:
+                    arguments:
+                      - -c
+                      - docker build --tag chantry.jfrog.io/experiment-docker/hello-world:1.0
+                        .
+                    command: /bin/bash
+                    run_if: passed
